@@ -1,39 +1,38 @@
 import { DateSelectArg, EventClickArg } from '@fullcalendar/react';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { createZoomMeeting } from '../api/zoomMeetingApi';
+import { createZoomMeeting, getAllZoomMeetings } from '../api/zoomMeetingApi';
 import { promptEventObjectForm } from '../services/calendarServices';
-import { CalendarEvent } from '../types/calendarTypes';
-import { asyncTryCatch } from '../utils/common';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { ZOOM_MEETINGS_CACHE_KEYS } from '../constants/zoomMeetingConstants';
 
-export const useEvents = (eventsDefaultValue: CalendarEvent[] = []) => {
-  const [events, setEvents] = useState(eventsDefaultValue);
+export const useEvents = () => {
+  const { data: events, refetch: refetchEvents } = useQuery(
+    [ZOOM_MEETINGS_CACHE_KEYS],
+    () => getAllZoomMeetings().then(({ data }) => data)
+  );
 
-  const addEvent = useCallback(async ({ start, end }: DateSelectArg) => {
+  const { mutate } = useMutation(createZoomMeeting, {
+    onSuccess: () => {
+      refetchEvents(), toast.success('Zoom Meeting Created!');
+    },
+    onError: error => {
+      toast.error(`Zoom Meeting Not Created!\n${error?.response?.data?.error}`);
+    },
+  });
+
+  const addEvent = async ({ start, end }: DateSelectArg) => {
     const title = promptEventObjectForm(start, end);
     if (!title) {
       return;
     }
 
-    const [result, error] = await asyncTryCatch(
-      async () =>
-        await createZoomMeeting({
-          title,
-          start,
-          end,
-        })
-    );
-
-    if (error) {
-      toast.error(`Zoom Meeting Not Created!\n${error?.response?.data?.error}`);
-      return;
-    }
-
-    if (result.data) {
-      setEvents(oldEvents => [...oldEvents, result.data]);
-      toast.success('Zoom Meeting Created!');
-    }
-  }, []);
+    mutate({
+      title,
+      start,
+      end,
+    });
+  };
 
   const openEvent = useCallback((event: EventClickArg) => {
     if (event.event.url) {

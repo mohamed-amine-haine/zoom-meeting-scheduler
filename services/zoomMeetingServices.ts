@@ -11,7 +11,7 @@ export const convertCalendarEventToZoomMeeting = ({
   title,
   start,
   end,
-}: Omit<CalendarEvent, 'url'>): Omit<ZoomMeeting, 'start_url'> => ({
+}: Omit<CalendarEvent, 'url'>): Omit<ZoomMeeting, 'join_url'> => ({
   topic: title,
   start_time: formatDateTimeToZoomFormat(start),
   duration: getMinutesDiff(end, start),
@@ -19,12 +19,12 @@ export const convertCalendarEventToZoomMeeting = ({
 
 export const convertZoomMeetingToCalendarEvent = ({
   topic,
-  start_url,
+  join_url,
   start_time,
   duration,
 }: ZoomMeeting): CalendarEvent => ({
   title: topic,
-  url: start_url,
+  url: join_url,
   start: start_time,
   end: dateTimeToIso(addMinutesToDateTime(start_time, duration)),
 });

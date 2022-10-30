@@ -1,7 +1,10 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { generateZoomBearerToken } from '../../services/authServices';
-import { createZoomMeetingApiBackend } from '../../api/zoomMeetingApi';
+import {
+  createZoomMeetingApiBackend,
+  getAllZoomMeetingsApiBackend,
+} from '../../api/zoomMeetingApi';
 import { ApiDataResponse } from '../../types/apiTypes';
 import { CalendarEvent } from '../../types/calendarTypes';
 import {
@@ -9,15 +12,32 @@ import {
   convertZoomMeetingToCalendarEvent,
 } from '../../services/zoomMeetingServices';
 
-export default async function handler(
+const getZoomMeetings = async (
   req: NextApiRequest,
-  res: NextApiResponse<ApiDataResponse<CalendarEvent>>
-) {
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Only POST requests allowed' });
+  res: NextApiResponse<ApiDataResponse<CalendarEvent[]>>
+) => {
+  const bearerToken = generateZoomBearerToken();
+
+  if (!bearerToken) {
+    res.status(500).json({ error: 'Internal Server Error' });
     return;
   }
 
+  try {
+    const { meetings } = await getAllZoomMeetingsApiBackend(bearerToken);
+    const calendarEvent = meetings.map(convertZoomMeetingToCalendarEvent);
+    res.status(200).json({
+      data: calendarEvent,
+    });
+  } catch (e) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const postZoomMeeting = async (
+  req: NextApiRequest,
+  res: NextApiResponse<ApiDataResponse<CalendarEvent>>
+) => {
   const bearerToken = generateZoomBearerToken();
 
   if (!bearerToken) {
@@ -44,11 +64,11 @@ export default async function handler(
       bearerToken
     );
 
-    const { topic, start_url, start_time, duration } = newZoomMeeting;
+    const { topic, join_url, start_time, duration } = newZoomMeeting;
 
     const newCalendarEvent = convertZoomMeetingToCalendarEvent({
       topic,
-      start_url,
+      join_url,
       start_time,
       duration,
     });
@@ -58,5 +78,22 @@ export default async function handler(
     });
   } catch (e) {
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method === 'POST') {
+    await postZoomMeeting(req, res);
+    return;
+  }
+  if (req.method === 'GET') {
+    await getZoomMeetings(req, res);
+    return;
+  } else {
+    res.status(405).json({ error: 'Only POST requests allowed' });
+    return;
   }
 }
