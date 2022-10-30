@@ -17,6 +17,7 @@ export default function Home() {
         select={addEvent}
         events={events}
         eventClick={openEvent}
+        allDaySlot={false}
       />
     </div>
   );
