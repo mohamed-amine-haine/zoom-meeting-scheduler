@@ -53,7 +53,7 @@ export default async function handler(
       duration,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       data: newCalendarEvent,
     });
   } catch (e) {
