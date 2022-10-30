@@ -18,6 +18,7 @@ export default function Home() {
         events={events}
         eventClick={openEvent}
         allDaySlot={false}
+        nowIndicator
       />
     </div>
   );
