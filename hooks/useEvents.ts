@@ -16,7 +16,9 @@ export const useEvents = () => {
     onSuccess: () => {
       refetchEvents(), toast.success('Zoom Meeting Created!');
     },
-    onError: error => {
+    onError: err => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error = err as any;
       toast.error(`Zoom Meeting Not Created!\n${error?.response?.data?.error}`);
     },
   });
