@@ -5,6 +5,7 @@ const withTM = ntm([
   '@fullcalendar/common',
   '@fullcalendar/react',
   '@fullcalendar/daygrid',
+  '@fullcalendar/timegrid',
 ]);
 
 /** @type {import('next').NextConfig} */
