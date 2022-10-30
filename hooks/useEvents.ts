@@ -1,4 +1,4 @@
-import { DateSelectArg } from '@fullcalendar/react';
+import { DateSelectArg, EventClickArg } from '@fullcalendar/react';
 import { useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 import { createZoomMeeting } from '../api/zoomMeetingApi';
@@ -36,8 +36,16 @@ export const useEvents = (eventsDefaultValue: CalendarEvent[] = []) => {
     }
   }, []);
 
+  const openEvent = useCallback((event: EventClickArg) => {
+    if (event.event.url) {
+      event.jsEvent.preventDefault();
+      window.open(event.event.url, '_blank');
+    }
+  }, []);
+
   return {
     events,
     addEvent,
+    openEvent,
   };
 };

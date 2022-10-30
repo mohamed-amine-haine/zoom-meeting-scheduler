@@ -6,7 +6,7 @@ import { useEvents } from '../hooks/useEvents';
 import { ToastContainer } from 'react-toastify';
 
 export default function Home() {
-  const { events, addEvent } = useEvents();
+  const { events, addEvent, openEvent } = useEvents();
 
   return (
     <div className={styles.container}>
@@ -18,6 +18,7 @@ export default function Home() {
         selectable
         select={addEvent}
         events={events}
+        eventClick={openEvent}
       />
       <ToastContainer theme="colored" />
     </div>
