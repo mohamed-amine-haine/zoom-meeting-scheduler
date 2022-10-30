@@ -3,6 +3,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction'; // for selectable
 import styles from '../styles/Home.module.css';
 import { useEvents } from '../hooks/useEvents';
+import { ToastContainer } from 'react-toastify';
 
 export default function Home() {
   const { events, addEvent } = useEvents();
@@ -18,6 +19,7 @@ export default function Home() {
         select={addEvent}
         events={events}
       />
+      <ToastContainer theme="colored" />
     </div>
   );
 }
