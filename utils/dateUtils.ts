@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { ZOOM_DATE_FORMAT } from '../constants/zoomMeetingConstants';
 
 export const dateTimeToIso = (dateTime: string | Date) =>
   dayjs(dateTime).toISOString();
@@ -10,7 +9,7 @@ export const getMinutesDiff = (
 ) => dayjs(dateTime1).diff(dateTime2, 'minutes');
 
 export const formatDateTimeToZoomFormat = (dateTime: string | Date) =>
-  dayjs(dateTime).format(ZOOM_DATE_FORMAT);
+  dayjs(dateTime).toISOString().split('.')[0] + 'Z';
 
 export const addMinutesToDateTime = (
   dateTime: string | Date,
